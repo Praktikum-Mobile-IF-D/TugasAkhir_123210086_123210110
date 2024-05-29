@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:proyek_akhir/view/login.dart';
+import 'package:hive/hive.dart';
+import 'package:proyek_akhir/hive/user.dart';
+import 'login.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -28,12 +29,18 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _register() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', _usernameController.text);
-    await prefs.setString('noTelepon', _noTeleponController.text);
-    await prefs.setString('alamat', _alamatController.text);
-    await prefs.setString('email', _emailController.text);
-    await prefs.setString('password', _passwordController.text);
+    var box = Hive.box<User>('usersBox');
+
+    User newUser = User(
+      username: _usernameController.text,
+      noTelepon: _noTeleponController.text,
+      alamat: _alamatController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+      imagePath: _image?.path,
+    );
+
+    await box.add(newUser);
 
     Navigator.pushReplacement(
       context,

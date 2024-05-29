@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:proyek_akhir/model/api_data_source.dart';
 import 'package:proyek_akhir/view/category.dart';
 import 'package:proyek_akhir/view/detail.dart';
+import 'package:proyek_akhir/view/profile.dart';
+import 'package:proyek_akhir/view/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +15,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _searchController = TextEditingController();
   late List<Map<String, dynamic>> products = [];
   String? _username;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -39,64 +42,60 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: AppBar(
-          title: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Selamat Datang,',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      '${_username ?? ''}',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 8.0),
-              Container(
-                width: 200,
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Cari...',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.search),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Selamat Datang,',
+                    style: TextStyle(fontSize: 16),
                   ),
-                  onChanged: (value) {
-                    // Handle search action based on the input value
-                  },
-                ),
+                  Text(
+                    '${_username ?? ''}',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            SizedBox(width: 8.0),
+            Container(
+              width: 200,
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Cari...',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (value) {},
+              ),
+            ),
+          ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20),
-              _buildCategoriesSection(),
-              SizedBox(height: 20),
-              _buildProductSection(),
-            ],
-          ),
-        ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: <Widget>[
+          _buildHomePage(),
+          RegisterPage(),
+          ProfilePage(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -111,6 +110,23 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHomePage() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            _buildCategoriesSection(),
+            SizedBox(height: 20),
+            _buildProductSection(),
+          ],
+        ),
       ),
     );
   }
@@ -171,13 +187,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductSection() {
-    if (products == null) {
+    if (products.isEmpty) {
       return Center(
         child: CircularProgressIndicator(),
-      );
-    } else if (products!.isEmpty) {
-      return Center(
-        child: Text('No products available'),
       );
     } else {
       return Column(
@@ -197,9 +209,9 @@ class _HomePageState extends State<HomePage> {
               mainAxisSpacing: 16,
               childAspectRatio: 0.7,
             ),
-            itemCount: products!.length,
+            itemCount: products.length,
             itemBuilder: (context, index) {
-              final product = products![index];
+              final product = products[index];
               return _buildProductItem(product);
             },
           ),
@@ -228,8 +240,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             Image.network(
               product['thumbnail'] ?? '',
-              width: 200,
-              height: 180,
+              width: 160,
+              height: 105,
               fit: BoxFit.cover,
             ),
             Padding(

@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:proyek_akhir/view/detail.dart';
 
-class CategoryPage extends StatelessWidget {
+class CategoryPage extends StatefulWidget {
   final String category;
   final List<Map<String, dynamic>> products;
 
   CategoryPage({required this.category, required this.products});
 
+  @override
+  State<CategoryPage> createState() => _CategoryPageState();
+}
+
+class _CategoryPageState extends State<CategoryPage> {
   List<Map<String, dynamic>> getProductsByCategory() {
-    return products
-        .where((product) => product['category'] == category.toLowerCase())
+    return widget.products
+        .where(
+            (product) => product['category'] == widget.category.toLowerCase())
         .toList();
   }
 
@@ -18,7 +25,7 @@ class CategoryPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kategori $category'),
+        title: Text('Kategori ${widget.category}'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -38,7 +45,7 @@ class CategoryPage extends StatelessWidget {
   Widget _buildProductSection(List<Map<String, dynamic>> categoryProducts) {
     if (categoryProducts.isEmpty) {
       return Center(
-        child: Text(category),
+        child: Text(widget.category),
       );
     } else {
       return Column(
@@ -72,7 +79,12 @@ class CategoryPage extends StatelessWidget {
   Widget _buildProductItem(Map<String, dynamic> product) {
     return GestureDetector(
       onTap: () {
-        // Tambahkan logika untuk menavigasi ke halaman detail produk jika diperlukan
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailPage(product: product),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -84,8 +96,8 @@ class CategoryPage extends StatelessWidget {
           children: [
             Image.network(
               product['thumbnail'] ?? '',
-              width: 200,
-              height: 180,
+              width: 160,
+              height: 105,
               fit: BoxFit.cover,
             ),
             Padding(
