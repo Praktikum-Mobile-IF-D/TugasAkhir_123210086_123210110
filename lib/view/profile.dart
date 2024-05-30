@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:proyek_akhir/hive/user.dart';
 import 'package:proyek_akhir/view/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -13,11 +15,12 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late SharedPreferences loginData;
   User? _user;
+  String _selectedTimezone = 'WIB'; // Defaultnya WIB
 
   @override
   void initState() {
-    initial();
     super.initState();
+    initial();
     _loadUserData();
   }
 
@@ -37,6 +40,35 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Stream<String> _timeStream() async* {
+    while (true) {
+      yield _getCurrentTime();
+      await Future.delayed(Duration(minutes: 1));
+    }
+  }
+
+  String _getCurrentTime() {
+    DateTime now = DateTime.now();
+    String formattedTime;
+    switch (_selectedTimezone) {
+      case 'WIB':
+        formattedTime = DateFormat.Hm().format(now);
+        break;
+      case 'WITA':
+        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 1)));
+        break;
+      case 'WIT':
+        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 2)));
+        break;
+      case 'UTC':
+        formattedTime = DateFormat.Hm().format(now.toUtc());
+        break;
+      default:
+        formattedTime = DateFormat.Hm().format(now);
+    }
+    return formattedTime;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_user == null) {
@@ -53,8 +85,33 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
-        centerTitle: true,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Profile'),
+            StreamBuilder<String>(
+              stream: _timeStream(),
+              builder: (context, snapshot) {
+                return Text(snapshot.data ?? '');
+              },
+            ),
+            DropdownButton<String>(
+              value: _selectedTimezone,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedTimezone = newValue!;
+                });
+              },
+              items: <String>['UTC', 'WIB', 'WITA', 'WIT']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -84,11 +141,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Text('@' + _user!.username),
               ),
               SizedBox(height: 16),
-              ProfileDetailRow(label: 'Username', value: _user!.username),
-              ProfileDetailRow(label: 'No Telp', value: _user!.noTelepon),
-              ProfileDetailRow(label: 'Alamat', value: _user!.alamat),
-              ProfileDetailRow(label: 'Email', value: _user!.email),
-              ProfileDetailRow(label: 'Password', value: _user!.password),
+              ProfileDetailRow(label: 'Username ', value: _user!.username),
+              ProfileDetailRow(label: 'No Telp ', value: _user!.noTelepon),
+              ProfileDetailRow(label: 'Alamat ', value: _user!.alamat),
+              ProfileDetailRow(label: 'Email ', value: _user!.email),
+              ProfileDetailRow(label: 'Password ', value: '********'),
               Spacer(),
               Center(
                 child: ElevatedButton(

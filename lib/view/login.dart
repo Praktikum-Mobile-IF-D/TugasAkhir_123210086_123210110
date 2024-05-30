@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert'; // for the utf8.encode method
 import 'package:proyek_akhir/hive/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register.dart';
@@ -26,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void checkIfAlreadyLogin() async {
     loginData = await SharedPreferences.getInstance();
+
     newUser = (loginData.getBool('login') ?? true);
     if (newUser == false) {
       Navigator.pushReplacement(
@@ -33,18 +36,30 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  String _encryptPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
   Future<void> _login() async {
     var box = Hive.box<User>('usersBox');
     List<User> users = box.values.toList();
 
     bool userFound = false;
-    var user;
-    for (user in users) {
+    int userIndex = -1;
+
+    String encryptedPassword = _encryptPassword(_passwordController.text);
+
+    for (int i = 0; i < users.length; i++) {
+      var user = users[i];
       if (user.email == _emailController.text &&
-          user.password == _passwordController.text) {
+          user.password == encryptedPassword) {
         userFound = true;
+        userIndex = i;
         loginData.setBool('login', false);
         loginData.setString('username', user.username);
+        loginData.setInt("accIndex", userIndex);
         break;
       }
     }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:proyek_akhir/model/api_data_source.dart';
+import 'package:proyek_akhir/view/cart.dart';
 import 'package:proyek_akhir/view/category.dart';
 import 'package:proyek_akhir/view/detail.dart';
 import 'package:proyek_akhir/view/profile.dart';
-import 'package:proyek_akhir/view/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,6 +15,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _searchController = TextEditingController();
   late List<Map<String, dynamic>> products = [];
   String? _username;
+  int? accIndex;
   int _selectedIndex = 0;
 
   @override
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _username = prefs.getString('username');
+      accIndex = prefs.getInt('accIndex');
     });
   }
 
@@ -63,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontSize: 16),
                   ),
                   Text(
-                    '${_username ?? ''}',
+                    '${_username ?? ''} ${accIndex ?? ''}',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -79,7 +81,10 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.search),
                 ),
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(
+                      () {}); // Trigger rebuild to reflect changes in search
+                },
               ),
             ),
           ],
@@ -89,7 +94,7 @@ class _HomePageState extends State<HomePage> {
         index: _selectedIndex,
         children: <Widget>[
           _buildHomePage(),
-          RegisterPage(),
+          CartPage(),
           ProfilePage(),
         ],
       ),
@@ -187,9 +192,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductSection() {
-    if (products.isEmpty) {
+    List<Map<String, dynamic>> filteredProducts = [];
+
+    if (_searchController.text.isEmpty) {
+      filteredProducts = List<Map<String, dynamic>>.from(products);
+    } else {
+      filteredProducts = products.where((product) {
+        String title = product['title'] ?? '';
+        return title
+            .toLowerCase()
+            .contains(_searchController.text.toLowerCase());
+      }).toList();
+    }
+
+    if (filteredProducts.isEmpty) {
       return Center(
-        child: CircularProgressIndicator(),
+        child: Text('No products found'),
       );
     } else {
       return Column(
@@ -209,9 +227,9 @@ class _HomePageState extends State<HomePage> {
               mainAxisSpacing: 16,
               childAspectRatio: 0.7,
             ),
-            itemCount: products.length,
+            itemCount: filteredProducts.length,
             itemBuilder: (context, index) {
-              final product = products[index];
+              final product = filteredProducts[index];
               return _buildProductItem(product);
             },
           ),

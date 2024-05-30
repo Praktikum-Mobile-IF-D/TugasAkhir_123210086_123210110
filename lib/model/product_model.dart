@@ -1,3 +1,7 @@
+import 'package:hive/hive.dart';
+
+part 'product_model.g.dart';
+
 class ProductModel {
   final List<Products>? products;
   final int? total;
@@ -27,7 +31,11 @@ class ProductModel {
       };
 }
 
+@HiveType(typeId: 1)
 class Products {
+  @HiveField(0)
+  List<Products>? cart;
+
   final int? id;
   final String? title;
   final String? description;

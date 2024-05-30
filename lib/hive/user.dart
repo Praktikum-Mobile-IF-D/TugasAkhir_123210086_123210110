@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:proyek_akhir/model/product_model.dart';
 
 part 'user.g.dart';
 
@@ -22,6 +23,9 @@ class User extends HiveObject {
   @HiveField(5)
   String? imagePath;
 
+  @HiveField(6)
+  List<Products>? carts;
+
   User({
     required this.username,
     required this.noTelepon,
@@ -29,5 +33,6 @@ class User extends HiveObject {
     required this.email,
     required this.password,
     this.imagePath,
+    required this.carts,
   });
 }

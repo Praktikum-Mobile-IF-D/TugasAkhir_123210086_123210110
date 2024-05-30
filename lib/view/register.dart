@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:hive/hive.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import 'package:proyek_akhir/hive/user.dart';
 import 'login.dart';
 
@@ -28,20 +31,29 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  String _encryptPassword(String password) {
+    var bytes = utf8.encode(password); // data being hashed
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
   Future<void> _register() async {
     var box = Hive.box<User>('usersBox');
 
+    String encryptedPassword = _encryptPassword(_passwordController.text);
+
+    print(encryptedPassword);
+
     User newUser = User(
-      username: _usernameController.text,
-      noTelepon: _noTeleponController.text,
-      alamat: _alamatController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-      imagePath: _image?.path,
-    );
+        username: _usernameController.text,
+        noTelepon: _noTeleponController.text,
+        alamat: _alamatController.text,
+        email: _emailController.text,
+        password: encryptedPassword,
+        imagePath: _image?.path,
+        carts: []);
 
     await box.add(newUser);
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
