@@ -15,7 +15,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late SharedPreferences loginData;
   User? _user;
-  String _selectedTimezone = 'WIB'; // Defaultnya WIB
+  String _selectedTimezone = 'WIB';
 
   @override
   void initState() {
@@ -48,17 +48,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String _getCurrentTime() {
-    DateTime now = DateTime.now();
+    DateTime now = DateTime.now().toUtc();
     String formattedTime;
     switch (_selectedTimezone) {
       case 'WIB':
-        formattedTime = DateFormat.Hm().format(now);
+        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 7)));
         break;
       case 'WITA':
-        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 1)));
+        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 8)));
         break;
       case 'WIT':
-        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 2)));
+        formattedTime = DateFormat.Hm().format(now.add(Duration(hours: 9)));
         break;
       case 'UTC':
         formattedTime = DateFormat.Hm().format(now.toUtc());
@@ -71,24 +71,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_user == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Profile'),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Profile'),
+            Text(
+              'Profile',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             StreamBuilder<String>(
               stream: _timeStream(),
               builder: (context, snapshot) {
@@ -113,53 +104,80 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          height: 500,
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
-                      _user!.imagePath != null && _user!.imagePath!.isNotEmpty
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: _user != null &&
+                              _user!.imagePath != null &&
+                              _user!.imagePath!.isNotEmpty
                           ? FileImage(File(_user!.imagePath!))
-                          : NetworkImage('https://example.com/photo.jpg')
-                              as ImageProvider,
-                ),
+                          : NetworkImage(
+                              'https://icons.veryicon.com/png/o/education-technology/big-data-platform/smile-14.png'),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Center(
+                    child: _user != null
+                        ? Text(
+                            _user!.username,
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          )
+                        : Text(
+                            'No Username',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                  Center(
+                    child: Text(
+                      _user != null ? '@' + _user!.username : '',
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ProfileDetailRow(
+                      label: 'Username ', value: _user?.username ?? ''),
+                  ProfileDetailRow(
+                      label: 'No Telp ', value: _user?.noTelepon ?? ''),
+                  ProfileDetailRow(
+                      label: 'Alamat ', value: _user?.alamat ?? ''),
+                  ProfileDetailRow(label: 'Email ', value: _user?.email ?? ''),
+                  ProfileDetailRow(label: 'Password ', value: '********'),
+                  SizedBox(height: 16),
+                  Text(
+                    'Kesan : Cukup bagus untuk mahasiswa dalam bereksplorasi tentang apa saja yang dapat dilakukan pada Flutter',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Pesan : Kurangi kesulitan kuis dan perpanjang waktu kuis',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-              SizedBox(height: 16),
-              Center(
-                child: Text(
-                  _user!.username,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Center(
-                child: Text('@' + _user!.username),
-              ),
-              SizedBox(height: 16),
-              ProfileDetailRow(label: 'Username ', value: _user!.username),
-              ProfileDetailRow(label: 'No Telp ', value: _user!.noTelepon),
-              ProfileDetailRow(label: 'Alamat ', value: _user!.alamat),
-              ProfileDetailRow(label: 'Email ', value: _user!.email),
-              ProfileDetailRow(label: 'Password ', value: '********'),
-              Spacer(),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    loginData.setBool('login', true);
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => LoginPage()));
-                  },
-                  child: Text('Log out'),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Spacer(),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: ElevatedButton(
+              onPressed: () {
+                loginData.setBool('login', true);
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => LoginPage()));
+              },
+              child: Text('Log out'),
+            ),
+          ),
+        ],
       ),
     );
   }

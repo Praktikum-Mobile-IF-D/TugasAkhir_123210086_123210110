@@ -65,25 +65,25 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontSize: 16),
                   ),
                   Text(
-                    '${_username ?? ''} ${accIndex ?? ''}',
+                    '${_username ?? ''}',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            SizedBox(width: 8.0),
             Container(
               width: 200,
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Cari...',
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 1, horizontal: 1),
+                  hintText: 'Cari Produk',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.search),
                 ),
                 onChanged: (value) {
-                  setState(
-                      () {}); // Trigger rebuild to reflect changes in search
+                  setState(() {});
                 },
               ),
             ),
@@ -126,7 +126,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20),
             _buildCategoriesSection(),
             SizedBox(height: 20),
             _buildProductSection(),
@@ -137,20 +136,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCategoriesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Kategori',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 10),
-        _buildCategoryItem('Beauty', 'img/beauty.png'),
-        _buildCategoryItem('Fragrances', 'img/fragrance.png'),
-        _buildCategoryItem('Furniture', 'img/furniture.png'),
-        _buildCategoryItem('Groceries', 'img/grocery.png'),
-      ],
-    );
+    bool isSearchEmpty = _searchController.text.isEmpty;
+    if (isSearchEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Kategori',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          _buildCategoryItem('Beauty', 'img/beauty.png'),
+          _buildCategoryItem('Fragrances', 'img/fragrance.png'),
+          _buildCategoryItem('Furniture', 'img/furniture.png'),
+          _buildCategoryItem('Groceries', 'img/grocery.png'),
+        ],
+      );
+    } else {
+      return Container();
+    }
   }
 
   Widget _buildCategoryItem(String title, String imagePath) {
@@ -169,8 +173,9 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: Colors.purple.shade50,
+            border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(10),
+            color: const Color.fromARGB(255, 240, 243, 247),
           ),
           child: Row(
             children: [
@@ -252,6 +257,7 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(10),
+          color: Color.fromARGB(255, 240, 243, 247),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

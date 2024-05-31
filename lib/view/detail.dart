@@ -28,14 +28,13 @@ class _DetailPageState extends State<DetailPage> {
       price: product['price'],
     );
 
-    if (box.getAt(accIndex!)?.carts != null) {
+    if (box.getAt(accIndex)?.carts != null) {
       box.getAt(accIndex)!.carts?.add(newCart);
     } else {
       var user = box.getAt(accIndex);
       user?.carts = [newCart];
       await box.putAt(accIndex, user!);
     }
-    //error klo dipake
     print(accIndex);
   }
 
@@ -43,7 +42,10 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Produk'),
+        title: Text(
+          'Detail Produk',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.shopping_cart),
@@ -122,6 +124,7 @@ class _DetailPageState extends State<DetailPage> {
                       ],
                     ),
                     SizedBox(height: 16),
+                    Divider(),
                     Text(
                       'Detail Produk',
                       style:
@@ -138,6 +141,7 @@ class _DetailPageState extends State<DetailPage> {
                       style: TextStyle(fontSize: 16),
                     ),
                     SizedBox(height: 16),
+                    Divider(),
                     Text(
                       'Deskripsi Produk',
                       style:
@@ -175,6 +179,7 @@ class _DetailPageState extends State<DetailPage> {
     if (currency == 'IDR') {
       convertedPrice *= 16225;
       symbol = 'Rp. ';
+      convertedPrice = double.parse(convertedPrice.toStringAsFixed(0));
     } else if (currency == 'EUR') {
       convertedPrice *= 0.92;
       symbol = '€ ';

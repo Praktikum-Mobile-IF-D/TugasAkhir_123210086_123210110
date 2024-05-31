@@ -25,7 +25,10 @@ class _CategoryPageState extends State<CategoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kategori ${widget.category}'),
+        title: Text(
+          'Kategori ${widget.category}',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -33,7 +36,6 @@ class _CategoryPageState extends State<CategoryPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
               _buildProductSection(categoryProducts),
             ],
           ),
@@ -51,11 +53,6 @@ class _CategoryPageState extends State<CategoryPage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Produk',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
           GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -90,6 +87,7 @@ class _CategoryPageState extends State<CategoryPage> {
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(10),
+          color: Color.fromARGB(255, 240, 243, 247),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

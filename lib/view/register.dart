@@ -32,26 +32,85 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   String _encryptPassword(String password) {
-    var bytes = utf8.encode(password); // data being hashed
+    var bytes = utf8.encode(password);
     var digest = sha256.convert(bytes);
     return digest.toString();
   }
 
   Future<void> _register() async {
-    var box = Hive.box<User>('usersBox');
+    if (_usernameController.text.isEmpty ||
+        _noTeleponController.text.isEmpty ||
+        _alamatController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Harap Isi Data Anda!'),
+          content: Text('Inputan Tidak Boleh Kosong'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
 
+    if (!_emailController.text.contains('@')) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Email Tidak Valid!'),
+          content: Text('Email yang Anda masukkan tidak valid.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    var box = Hive.box<User>('usersBox');
+    bool emailExists = false;
+    for (var user in box.values) {
+      if (user.email == _emailController.text) {
+        emailExists = true;
+        break;
+      }
+    }
+    if (emailExists) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Email Sudah Digunakan!'),
+          content: Text('Email yang Anda masukkan sudah terdaftar.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
     String encryptedPassword = _encryptPassword(_passwordController.text);
 
-    print(encryptedPassword);
-
     User newUser = User(
-        username: _usernameController.text,
-        noTelepon: _noTeleponController.text,
-        alamat: _alamatController.text,
-        email: _emailController.text,
-        password: encryptedPassword,
-        imagePath: _image?.path,
-        carts: []);
+      username: _usernameController.text,
+      noTelepon: _noTeleponController.text,
+      alamat: _alamatController.text,
+      email: _emailController.text,
+      password: encryptedPassword,
+      imagePath: _image?.path,
+      carts: [],
+    );
 
     await box.add(newUser);
     Navigator.pushReplacement(

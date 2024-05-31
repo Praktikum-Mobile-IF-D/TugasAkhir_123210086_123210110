@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert'; // for the utf8.encode method
+import 'dart:convert';
 import 'package:proyek_akhir/hive/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register.dart';
