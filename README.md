@@ -1,3 +1,4 @@
 # proyek_akhir
 
-A new Flutter project.
+Aplikasi toko online 
+API : https://dummyjson.com/products
